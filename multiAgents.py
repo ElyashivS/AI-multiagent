@@ -160,10 +160,10 @@ class MinimaxAgent(MultiAgentSearchAgent):
         "*** MY CODE HERE ***"
 
         # Minimax value
-        minimaxValue, action = self.calculateMinimaxValue(gameState, 0, depth=0)
+        minimaxValue, action = self.calculate_minimax_value(gameState, 0, depth=0)
         return action
 
-    def calculateMinimaxValue(self, gameState, agent, depth):
+    def calculate_minimax_value(self, gameState, agent, depth):
         # If we have no where to go, or the depth reach his max, or lost, or we won.
         if (not (gameState.getLegalActions(agent))) \
                 or (depth >= self.depth) \
@@ -171,17 +171,17 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 or (gameState.isWin()):
             return self.evaluationFunction(gameState), None
 
-        newStates = \
+        new_states = \
             [(gameState.generateSuccessor(agent, action), action) for action in gameState.getLegalActions(agent)]
-        nextAgent = (agent + 1) % gameState.getNumAgents()
-        if nextAgent == 0:
+        next_agent = (agent + 1) % gameState.getNumAgents()
+        if next_agent == 0:
             depth += 1
 
-        miniMaxes = [(self.calculateMinimaxValue(state, nextAgent, depth)[0], action) for state, action in newStates]
+        mini_maxes = [(self.calculate_minimax_value(state, next_agent, depth)[0], action) for state, action in new_states]
         if agent == 0:  # Pacman plays
-            return max(miniMaxes)
+            return max(mini_maxes)
         else:  # Ghost plays
-            return min(miniMaxes)
+            return min(mini_maxes)
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -195,85 +195,85 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         "*** MY CODE HERE ***"
 
         # Determine the correct action by minimax algorithm
-        action = self.alphaBetaPruning(state=gameState,
-                                       depth=self.depth,
-                                       agent=0,
-                                       alpha=float('-inf'),
-                                       beta=float('inf'))[1]
+        action = self.alpha_beta_pruning(state=gameState,
+                                         depth=self.depth,
+                                         agent=0,
+                                         alpha=float('-inf'),
+                                         beta=float('inf'))[1]
 
         return action
 
-    def alphaBetaPruning(self, state, depth, agent, alpha, beta):
+    def alpha_beta_pruning(self, state, depth, agent, alpha, beta):
         # If we won, lost, no action left, or the assessment is returned by the minimax algorithm's maximum depth
         if (state.isWin()) or (state.isLose()) or (depth == 0) or (len(state.getLegalActions(agent)) == 0):
             return self.evaluationFunction(state), None
 
         # Pacman turn
         if agent == 0:
-            return self.maxValue(state, depth, agent, alpha, beta)
+            return self.max_value(state, depth, agent, alpha, beta)
         # Ghost turn
         else:
-            return self.minValue(state, depth, agent, alpha, beta)
+            return self.min_value(state, depth, agent, alpha, beta)
 
-    def maxValue(self, state, depth, agent, alpha, beta):
+    def max_value(self, state, depth, agent, alpha, beta):
 
-        legalActions = state.getLegalActions(agent)  # Retrieve legal actions for Pacman
+        legal_actions = state.getLegalActions(agent)  # Retrieve legal actions for Pacman
 
-        maxValue = float('-inf')  # Init max value to minus infinity
-        maxAction = None
+        max_action = None
+        max_value = float('-inf')  # Init max value to minus infinity
 
-        for action in legalActions:  # Get value of the successor state for each action
-            successorState = state.generateSuccessor(agent, action)
+        for action in legal_actions:  # Get value of the successor state for each action
+            successor_state = state.generateSuccessor(agent, action)
 
             # Get value of the successor state for each action of ghost
-            value = self.alphaBetaPruning(successorState, depth, agent + 1, alpha, beta)[0]
+            value = self.alpha_beta_pruning(successor_state, depth, agent + 1, alpha, beta)[0]
 
             # Update the maximum value and action if the value surpasses the present maximum
-            if value > maxValue:
-                maxValue = value
-                maxAction = action
+            if value > max_value:
+                max_value = value
+                max_action = action
 
             # We can prune the branch if the value exceeds beta.
-            if maxValue > beta:
-                return maxValue, maxAction
+            if max_value > beta:
+                return max_value, max_action
 
             # Update the value of alpha
-            alpha = max(alpha, maxValue)
+            alpha = max(alpha, max_value)
 
-        return maxValue, maxAction
+        return max_value, max_action
 
-    def minValue(self, state, depth, agent, alpha, beta):
+    def min_value(self, state, depth, agent, alpha, beta):
 
-        legalActions = state.getLegalActions(agent)  # Get legal actions for ghost agent
+        legal_actions = state.getLegalActions(agent)  # Get legal actions for ghost agent
 
-        minVal = float('inf')  # Initialize the minimum value to the highest possible value
-        minAction = None
+        min_val = float('inf')  # Initialize the minimum value to the highest possible value
+        min_action = None
 
-        for action in legalActions:  # For each legal action, get the value of the successor state
-            successorState = state.generateSuccessor(agent, action)
+        for action in legal_actions:  # For each legal action, get the value of the successor state
+            successor_state = state.generateSuccessor(agent, action)
 
-            ghostNumber = state.getNumAgents() - 1  # Ghosts number
+            ghost_number = state.getNumAgents() - 1  # Ghosts number
 
-            if agent == ghostNumber:  # In case we have reached the last ghost, we return to Pacman.
+            if agent == ghost_number:  # In case we have reached the last ghost, we return to Pacman.
                 # Value of successor
-                value = self.alphaBetaPruning(successorState, depth - 1, 0, alpha, beta)[0]
+                value = self.alpha_beta_pruning(successor_state, depth - 1, 0, alpha, beta)[0]
             else:  # Otherwise, we'll go to the next ghost
                 # Value of the successor
-                value = self.alphaBetaPruning(successorState, depth, agent + 1, alpha, beta)[0]
+                value = self.alpha_beta_pruning(successor_state, depth, agent + 1, alpha, beta)[0]
 
             # Update the minimum value and action if the value is lower than the current minimum.
-            if value < minVal:
-                minVal = value
-                minAction = action
+            if value < min_val:
+                min_val = value
+                min_action = action
 
             # We can prune the branch if the value less than alpha.
-            if minVal < alpha:
-                return minVal, minAction
+            if min_val < alpha:
+                return min_val, min_action
 
             # Update beta
-            beta = min(beta, minVal)
+            beta = min(beta, min_val)
 
-        return minVal, minAction
+        return min_val, min_action
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -289,31 +289,31 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** MY CODE HERE ***"
-        minimaxValue, action = self.calculateMinimaxValue(gameState, 0, depth=0)
+        minimaxValue, action = self.calculate_minimax_value(gameState, 0, depth=0)
         return action
 
-    def calculateMinimaxValue(self, gameState, agent, depth):  # Same as line 167
+    def calculate_minimax_value(self, gameState, agent, depth):  # Same as line 167
         if (not (gameState.getLegalActions(agent))) \
                 or (depth >= self.depth) \
                 or (gameState.isLose()) \
                 or (gameState.isWin()):
             return self.evaluationFunction(gameState), None
 
-        newStates = \
+        new_states = \
             [(gameState.generateSuccessor(agent, action), action) for action in
                      gameState.getLegalActions(agent)]
-        nextAgent = (agent + 1) % gameState.getNumAgents()
-        if nextAgent == 0:
+        next_agent = (agent + 1) % gameState.getNumAgents()
+        if next_agent == 0:
             depth += 1
 
-        minimaxes = [(self.calculateMinimaxValue(state, nextAgent, depth)[0], action) for state, action in newStates]
+        mini_maxes = [(self.calculate_minimax_value(state, next_agent, depth)[0], action) for state, action in new_states]
         # Pacman turn
         if agent == 0:
-            return max(minimaxes)
+            return max(mini_maxes)
         # Ghost turn
         else:
-            minimaxes_vals = [x[0] for x in minimaxes]
-            avg = sum(minimaxes_vals) / float(len(minimaxes_vals))
+            mini_maxes_values = [x[0] for x in mini_maxes]
+            avg = sum(mini_maxes_values) / float(len(mini_maxes_values))
 
             # since it's an average, we're losing the data of which direction we came from. We pass None
             return avg, None
@@ -348,55 +348,54 @@ def betterEvaluationFunction(currentGameState):
     if currentGameState.isLose():
         return -10000000.
 
+    ghost_states = currentGameState.getGhostStates()
+    current_position = currentGameState.getPacmanPosition()
+    food_list = currentGameState.getFood().asList()
 
-    foodList = currentGameState.getFood().asList()
-    currentPosition = currentGameState.getPacmanPosition()
-    ghostStates = currentGameState.getGhostStates()
+    normal_ghosts = []
+    scared_ghosts = []
 
-    activeGhosts = []
-    scaredGhosts = []
-
-    for ghost in ghostStates:
+    for ghost in ghost_states:
         if ghost.scaredTimer:
-            scaredGhosts.append(ghost.getPosition())
+            scared_ghosts.append(ghost.getPosition())
         else:
-            activeGhosts.append(ghost.getPosition())
+            normal_ghosts.append(ghost.getPosition())
 
     # Base evaluation = 10 * current game state
     evaluation = 10 * currentGameState.getScore()
 
     # Evaluation = Current evaluation (-15 * number of foods that left))
-    evaluation += - 15 * len(foodList)
+    evaluation += - 15 * len(food_list)
 
     # Evaluation = Current evaluation -15
     # (If there is food left on the game)
-    foodDistances = [manhattanDistance(currentPosition, food) for food in foodList]
-    sortedFoodsDistances = sorted(foodDistances)
+    food_distances = [manhattanDistance(current_position, food) for food in food_list]
+    sort_foods_distances = sorted(food_distances)
 
-    almostClosestFoodsSum = sum(sortedFoodsDistances[-4:])
-    mostClosestFoodsSum = sum(sortedFoodsDistances[-2:])
+    almost_closest_foods_sum = sum(sort_foods_distances[-4:])
+    most_closest_foods_sum = sum(sort_foods_distances[-2:])
 
-    if len(sortedFoodsDistances) > 0:
+    if len(sort_foods_distances) > 0:
         evaluation += - 15.
 
     # Lower the evaluation for close food
     # Evaluation = Current evaluation + (15 / <Sum the distance from Pacman to the top 2 foods that are the closest>)
     # + (10 / <Sum the distance from Pacman to the top 4 foods that are the closest>)
-    evaluation += (10. / almostClosestFoodsSum) + (15. / mostClosestFoodsSum)
+    evaluation += (10. / almost_closest_foods_sum) + (15. / most_closest_foods_sum)
 
-    # Update evaluation by the distances of active ghosts
-    # Evaluation = Current evaluation (-15) * (1 / <Distance to the closest active ghosts>)
-    activeGhostDistances = [manhattanDistance(currentPosition, ghost) for ghost in activeGhosts]
+    # Update evaluation by the distances of normal ghosts
+    # Evaluation = Current evaluation (-15) * (1 / <Distance to the closest normal ghosts>)
+    normal_ghost_distances = [manhattanDistance(current_position, ghost) for ghost in normal_ghosts]
 
-    if len(activeGhostDistances) > 0:
-        evaluation += - 15. / min(activeGhostDistances)
+    if len(normal_ghost_distances) > 0:
+        evaluation += - 15. / min(normal_ghost_distances)
 
     # Update evaluation by the distances to the scared ghosts that closest
     # Evaluation = Current evaluation (+15) * (1 / <Distance to the scared ghosts that closest>)
-    scaredGhostDistances = [manhattanDistance(currentPosition, ghost) for ghost in scaredGhosts]
+    scared_ghost_distances = [manhattanDistance(current_position, ghost) for ghost in scared_ghosts]
 
-    if len(scaredGhostDistances) > 0:
-        evaluation += + 15. / min(scaredGhostDistances)
+    if len(scared_ghost_distances) > 0:
+        evaluation += + 15. / min(scared_ghost_distances)
 
     return evaluation
 
