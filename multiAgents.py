@@ -160,7 +160,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         "*** MY CODE HERE ***"
 
         # Minimax value
-        minimaxValue, action = self.calculate_minimax_value(gameState, 0, depth=0)
+        minimax_value, action = self.calculate_minimax_value(gameState, 0, depth=0)
         return action
 
     def calculate_minimax_value(self, gameState, agent, depth):
@@ -177,7 +177,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
         if next_agent == 0:
             depth += 1
 
-        mini_maxes = [(self.calculate_minimax_value(state, next_agent, depth)[0], action) for state, action in new_states]
+        mini_maxes = \
+            [(self.calculate_minimax_value(state, next_agent, depth)[0], action) for state, action in new_states]
         if agent == 0:  # Pacman plays
             return max(mini_maxes)
         else:  # Ghost plays
@@ -220,16 +221,16 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         legal_actions = state.getLegalActions(agent)  # Retrieve legal actions for Pacman
 
         max_action = None
-        max_value = float('-inf')  # Init max value to minus infinity
+        max_value = float('-inf')  # Initialize the maximum value to the minimum possible value
 
-        for action in legal_actions:  # Get value of the successor state for each action
+        for action in legal_actions:  # Get value of the successor state for each Pacman action
             successor_state = state.generateSuccessor(agent, action)
 
             # Get value of the successor state for each action of ghost
             value = self.alpha_beta_pruning(successor_state, depth, agent + 1, alpha, beta)[0]
 
-            # Update the maximum value and action if the value surpasses the present maximum
-            if value > max_value:
+            # Update the maximum value and action if the value is higher than the current maximum.
+            if value > max_value:  # Strict inequality as required
                 max_value = value
                 max_action = action
 
@@ -237,43 +238,41 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             if max_value > beta:
                 return max_value, max_action
 
-            # Update the value of alpha
+            # Update alpha
             alpha = max(alpha, max_value)
 
         return max_value, max_action
 
     def min_value(self, state, depth, agent, alpha, beta):
 
-        legal_actions = state.getLegalActions(agent)  # Get legal actions for ghost agent
+        legal_actions = state.getLegalActions(agent)  # Retrieve legal actions for Ghost
 
-        min_val = float('inf')  # Initialize the minimum value to the highest possible value
         min_action = None
+        min_value = float('inf')  # Initialize the minimum value to the highest possible value
 
-        for action in legal_actions:  # For each legal action, get the value of the successor state
+        for action in legal_actions:  # Get value of the successor state for each Ghost action
             successor_state = state.generateSuccessor(agent, action)
 
             ghost_number = state.getNumAgents() - 1  # Ghosts number
 
             if agent == ghost_number:  # In case we have reached the last ghost, we return to Pacman.
-                # Value of successor
                 value = self.alpha_beta_pruning(successor_state, depth - 1, 0, alpha, beta)[0]
             else:  # Otherwise, we'll go to the next ghost
-                # Value of the successor
                 value = self.alpha_beta_pruning(successor_state, depth, agent + 1, alpha, beta)[0]
 
             # Update the minimum value and action if the value is lower than the current minimum.
-            if value < min_val:
-                min_val = value
+            if value < min_value:  # Strict inequality as required
+                min_value = value
                 min_action = action
 
             # We can prune the branch if the value less than alpha.
-            if min_val < alpha:
-                return min_val, min_action
+            if min_value < alpha:
+                return min_value, min_action
 
             # Update beta
-            beta = min(beta, min_val)
+            beta = min(beta, min_value)
 
-        return min_val, min_action
+        return min_value, min_action
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -289,7 +288,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** MY CODE HERE ***"
-        minimaxValue, action = self.calculate_minimax_value(gameState, 0, depth=0)
+        minimax_value, action = self.calculate_minimax_value(gameState, 0, depth=0)
         return action
 
     def calculate_minimax_value(self, gameState, agent, depth):  # Same as line 167
@@ -306,7 +305,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         if next_agent == 0:
             depth += 1
 
-        mini_maxes = [(self.calculate_minimax_value(state, next_agent, depth)[0], action) for state, action in new_states]
+        mini_maxes = \
+            [(self.calculate_minimax_value(state, next_agent, depth)[0], action) for state, action in new_states]
         # Pacman turn
         if agent == 0:
             return max(mini_maxes)
