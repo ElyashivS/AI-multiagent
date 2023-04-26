@@ -18,6 +18,7 @@ import random, util
 
 from game import Agent
 
+
 class ReflexAgent(Agent):
     """
     A reflex agent chooses an action at each choice point by examining
@@ -27,7 +28,6 @@ class ReflexAgent(Agent):
     it in any way you see fit, so long as you don't touch our method
     headers.
     """
-
 
     def getAction(self, gameState):
         """
@@ -45,7 +45,7 @@ class ReflexAgent(Agent):
         scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
         bestScore = max(scores)
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
-        chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+        chosenIndex = random.choice(bestIndices)  # Pick randomly among the best
 
         "Add more of your code here if you want to"
 
@@ -109,6 +109,7 @@ def scoreEvaluationFunction(currentGameState):
     """
     return currentGameState.getScore()
 
+
 class MultiAgentSearchAgent(Agent):
     """
     This class provides some common elements to all of your
@@ -124,10 +125,11 @@ class MultiAgentSearchAgent(Agent):
     is another abstract class.
     """
 
-    def __init__(self, evalFn = 'scoreEvaluationFunction', depth = '2'):
-        self.index = 0 # Pacman is always agent index 0
+    def __init__(self, evalFn='scoreEvaluationFunction', depth='2'):
+        self.index = 0  # Pacman is always agent index 0
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
+
 
 class MinimaxAgent(MultiAgentSearchAgent):
     """
@@ -179,10 +181,13 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         mini_maxes = \
             [(self.calculate_minimax_value(state, next_agent, depth)[0], action) for state, action in new_states]
-        if agent == 0:  # Pacman plays
+        # Pacman turn
+        if agent == 0:
             return max(mini_maxes)
-        else:  # Ghost plays
+        # Ghost turn
+        else:
             return min(mini_maxes)
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -291,7 +296,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         minimax_value, action = self.calculate_minimax_value(gameState, 0, depth=0)
         return action
 
-    def calculate_minimax_value(self, gameState, agent, depth):  # Same as line 167
+    def calculate_minimax_value(self, gameState, agent, depth):  # Almost the same as line 167
         if (not (gameState.getLegalActions(agent))) \
                 or (depth >= self.depth) \
                 or (gameState.isLose()) \
@@ -300,7 +305,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
         new_states = \
             [(gameState.generateSuccessor(agent, action), action) for action in
-                     gameState.getLegalActions(agent)]
+             gameState.getLegalActions(agent)]
         next_agent = (agent + 1) % gameState.getNumAgents()
         if next_agent == 0:
             depth += 1
@@ -315,7 +320,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             mini_maxes_values = [x[0] for x in mini_maxes]
             avg = sum(mini_maxes_values) / float(len(mini_maxes_values))
 
-            # since it's an average, we're losing the data of which direction we came from. We pass None
+            # We don't know anymore which direction we came from.
             return avg, None
 
 
@@ -327,15 +332,14 @@ def betterEvaluationFunction(currentGameState):
     Description:
 
     Defines an evaluation function for Pacman.
-    It calculates a score based on the remaining food pellets, distances to ghosts, and Pacman's score.
+
     The evaluation returns a high score if Pacman has won, and a low score if Pacman has lost.
 
-    The function calculates the distances from Pacman to different ghosts, and remaining food pellets.
-    It updates the evaluation score based on the number of remaining food pellets and the distances to ghosts.
+    The function calculates the current situation,the distances from Pacman to different ghosts (normal and scared),
+    the distance from Pacman to different foods, and the number of remaining food.
+    It updates the evaluation score based on those parameters.
 
-    The exact amount of score described in below
-
-
+    The exact amount of score described in the code below.
 
     """
     "*** MY CODE HERE ***"
